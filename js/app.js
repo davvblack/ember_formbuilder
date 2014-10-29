@@ -21,24 +21,24 @@ BSDEM.AppForm = DS.Model.extend({
 })
 
 BSDEM.AppFormField = DS.Model.extend({
-    id: attr,
+    id: attr("number"),
     app_form_id: DS.belongsTo(BSDEM.AppForm),
-    display_order: attr,
-    type: attr,
+    display_order: attr("number"),
+    type: attr("string"),
     settings: DS.belongsTo(BSDEM.AppFormFieldSettings, {embedded:'always'}),
-    is_new: attr
+    is_new: attr("boolean", {defaultValue: true})
 })
 
 BSDEM.AppFormFieldSettings = DS.Model.extend({
-    label: attr,
-    name: attr,
-    isRequired: attr,
-    valueIfBlank: attr,
-    valueIfChecked: attr,
-    valueIfUnchecked: attr,
-    default: attr,
-    options: attr
-    isIncludedOnTaxReciept: attr,
+    label: attr("string"),
+    name: attr("string"),
+    isRequired: attr("boolean"),
+    valueIfBlank: attr("string"),
+    valueIfChecked: attr("string"),
+    valueIfUnchecked: attr("string"),
+    default: attr("string"),
+    options: attr,
+    isIncludedOnTaxReciept: attr("boolean"),
 })
 
 BSDEM.AppForm.reopenClass({
