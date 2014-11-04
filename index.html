@@ -9,6 +9,42 @@
     <script type="text/x-handlebars" data-template-name="panel">
 
     </script>
+
+    <script type="text/x-handlebars" data-template-name="formbuilder-form">
+        <div class="bsd-formbuilder">
+            <div class="head">
+                <div class="field-number">1</div>
+                Field Type
+                <div class="edit">Edit</div>
+                <div class="delete">Edit</div>
+            </div>
+            {{#if showTypeLine}}
+                <div class="type-line">
+
+                </div>
+            {{/if}}
+            {{#if showHtmlEditor}}
+                <div class="html-editor"></div>
+            {{/if}}
+            <div class="field-label">{{input placeholder="Enter field label"}}</div>
+            <div class="settings">
+                {{#if singleCheckbox}}
+                    {{view 'formbuilder-field'}}
+                    {{view 'formbuilder-field'}}
+                {{/if}}
+                {{#if multipleOptions}}
+                    {{#each}}
+                        {{view 'formbuilder-field'}}
+                    {{/each}}
+                    <button {{action 'addOption'}}>Add Option</button>
+                {{/if}}
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="formbuilder-form">
+
+    </script>
 </head>
 <body>
 <script type="text/x-handlebars">
@@ -19,11 +55,14 @@
 
 <script type="text/x-handlebars" id="index">
     <ul>
-    {{#each item in model}}
-        <li>{{item}}</li>
-    {{/each}}
+        {{#each item in model}}
+            <li>{{item}}</li>
+        {{/each}}
     </ul>
 </script>
+
+
+
 
 
 
