@@ -14,7 +14,9 @@ BSDEM = Ember.Application.create();
 
 var attr = DS.attr();
 
-/* This won't be posted by the app. */
+/* Models */
+
+// This won't be posted by the app.
 BSDEM.AppForm = DS.Model.extend({
     id: attr,
     app_form_fields: DS.hasMany(BSDEM.AppFormField)
@@ -30,6 +32,7 @@ BSDEM.AppFormField = DS.Model.extend({
 })
 
 BSDEM.AppFormFieldSettings = DS.Model.extend({
+    id: attr("number"),
     label: attr("string"),
     name: attr("string"),
     isRequired: attr("boolean"),
@@ -37,13 +40,42 @@ BSDEM.AppFormFieldSettings = DS.Model.extend({
     valueIfChecked: attr("string"),
     valueIfUnchecked: attr("string"),
     default: attr("string"),
-    options: attr,
-    isIncludedOnTaxReciept: attr("boolean"),
+    options: attr, //["value", "value", "value"]
+    isIncludedOnTaxReciept: attr("boolean")
 })
 
+/* Fixtures */
+
 BSDEM.AppForm.reopenClass({
-    FIXTURES:{
-        id: 1,
-        app_form_fields: []
-    }
+    FIXTURES:[
+        {
+            id: 1,
+            app_form_fields: [1]
+        }
+    ]
 })
+
+/* Controllers */
+
+BSDEM.FormController = Ember.Controller.extend({
+
+});
+
+BSDEM.FieldsController = Ember.ArrayController.extend({
+    show
+});
+
+BSDEM.FieldController = Ember.Controller.extend({
+    showHtmlEditor: Ember.computed('model.type', function(){})
+
+});
+
+BSDEM.OptionsController = Ember.ArrayController.extend({
+
+});
+
+BSDEM.OptionController = Ember.Controller.extend({
+
+});
+
+/* Views */
