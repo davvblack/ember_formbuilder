@@ -10,48 +10,95 @@
 
     </script>
 
-    <script type="text/x-handlebars" data-template-name="formbuilder-form">
+    <script type="text/x-handlebars" data-template-name="_text-preview">
+
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="_textarea-preview">
+
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="_checkbox-preview">
+
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="_hidden-preview">
+
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="_dropdown-preview">
+
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="_radio-preview">
+        <table>
+            {{#each fields as field}}
+                <tr><td>
+                    {{view input type
+                </td></tr>
+            {{/each}}
+        </table>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="_multi_checkbox-preview">
+
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="_static-preview">
+        <!-- empty placeholder -->
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="formbuilder-formfield">
         <div class="bsd-formbuilder">
             <div class="head">
-                <div class="field-number">1</div>
+                <div class="field-number">{{order}}</div>
                 Field Type
-                <div class="edit">Edit</div>
-                <div class="delete">Edit</div>
+                {{#unless editable}}<button class="edit" {{action edit}}>Edit</button>{{/unless}}
+                <div class="delete" {{action delete}}>Delete</div>
             </div>
-            {{#if showTypeLine}}
-                <div class="type-line">
+            {{#if editable}}
+                {{#if showTypeLine}}
+                    <div class="type-line">
+                        {{#if hasTypeOptions}}
 
-                </div>
-            {{/if}}
-            {{#if showHtmlEditor}}
-                <div class="html-editor"></div>
-            {{/if}}
-            <div class="field-label">{{input placeholder="Enter field label"}}</div>
-            <div class="settings">
-                {{#if singleCheckbox}}
-                    {{view 'formbuilder-field'}}
-                    {{view 'formbuilder-field'}}
+                        {{/if}}
+                    </div>
                 {{/if}}
-                {{#if multipleOptions}}
-                    {{#each}}
+                {{#if showHtmlEditor}}
+                    <div class="html-editor"><textarea></textarea></div>
+                {{/if}}
+                <div class="field-label">{{input placeholder="Enter field label"}}</div>
+                <div class="settings">
+                    {{#if isSingleCheckbox}}
                         {{view 'formbuilder-field'}}
-                    {{/each}}
-                    <button {{action 'addOption'}}>Add Option</button>
+                        {{view 'formbuilder-field'}}
+                    {{/if}}
+                    {{#if isMultipleOptions}}
+                        {{#each}}
+                            {{view 'formbuilder-field'}}
+                        {{/each}}
+                        <button {{action 'addOption'}}>Add Option</button>
+                    {{/if}}
+                </div>
+            {{else}}
+                {{#if showHtmlEditor}}
+                    {{}}
                 {{/if}}
-            </div>
+                {{_partial previewComponent}}
+            {{/if}}
         </div>
     </script>
 
     <script type="text/x-handlebars" data-template-name="formbuilder-form">
 
+        {{#each fields}}
+
+        {{/each}}
     </script>
+
+
 </head>
 <body>
-<script type="text/x-handlebars">
-    <h2>Welcome to Ember.js</h2>
-
-    {{outlet}}
-</script>
 
 <script type="text/x-handlebars" id="index">
     <ul>
@@ -63,7 +110,17 @@
 
 
 
+<table><tr><td>
 
+    <script type="text/x-handlebars">
+        <div>
+            hi
+        </div>
+
+        {{outlet}}
+    </script>
+
+</Td></tr></table>
 
 
 <script src="js/libs/jquery-1.10.2.js"></script>
