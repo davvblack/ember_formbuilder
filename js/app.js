@@ -14,22 +14,22 @@ BSDEM.IndexRoute = Ember.Route.extend({
     }
 });
 */
-var attr = DS.attr();
+var attr = DS.attr;
 
 /* Models */
 
 // This won't be posted by the app.
 BSDEM.AppForm = DS.Model.extend({
     id: attr,
-    app_form_fields: DS.hasMany(BSDEM.AppFormField)
+    app_form_fields: DS.hasMany('AppFormField')
 });
 
 BSDEM.AppFormField = DS.Model.extend({
     id: attr("number"),
-    app_form_id: DS.belongsTo(BSDEM.AppForm),
+    app_form_id: DS.belongsTo('AppForm'),
     display_order: attr("number"),
     type: attr("string"),
-    settings: DS.belongsTo(BSDEM.AppFormFieldSettings, {embedded:'always'}),
+    settings: DS.belongsTo('AppFormFieldSettings', {embedded:'always'}),
     is_new: attr("boolean", {defaultValue: true})
 });
 
@@ -70,7 +70,7 @@ BSDEM.fieldSupertypeMap = {
     static: "STATIC"
 };
 
-BSDEM.fieldSupertypeList = Ember.Set([
+BSDEM.fieldSupertypeList = new Ember.Set([
     "TEXT",
     "MULTIPLE",
     "CHECKBOX",
