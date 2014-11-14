@@ -5,13 +5,12 @@
 BSDEM = Ember.Application.create();
 BSDEM.Router.map(function() {
     //this.resource('form', {path: '/'});
-    this.resource('fields', {path: '/'});
-    /*
+    //this.resource('fields', {path: '/'});
+
     this.resource('formbuilder', { path: '/' }, function () {
-        this.route('form');
-        this.route('fields');
+        this.route('form', { path: '/' });
+        this.route('fields', { path: '/' });
     });
-    */
 
 });
 
@@ -21,7 +20,9 @@ BSDEM.FormRoute = Ember.Route.extend({
     },
     renderTemplate: function() {
         this.render({ outlet: 'form' });
-    }
+    },
+    templateName: 'form',
+    controllerName: 'form' //FormController
 });
 
 BSDEM.FieldsRoute = Ember.Route.extend({
@@ -30,7 +31,9 @@ BSDEM.FieldsRoute = Ember.Route.extend({
     },
     renderTemplate: function() {
         this.render({ outlet: 'fields' });
-    }
+    },
+    templateName: 'fields',
+    controllerName: 'fields' //FormController
 });
 
 var attr = DS.attr;
@@ -167,11 +170,11 @@ BSDEM.fieldTypeNames = {
     static: "Static HTML"
 }
 
-BSDEM.FormbuilderFormController = Ember.Controller.extend({
+BSDEM.FormController = Ember.Controller.extend({
     thing: "whatever"
 });
 
-BSDEM.FormbuilderFieldsController = Ember.ArrayController.extend({
+BSDEM.FieldsController = Ember.ArrayController.extend({
     lookupItemController: function(object) {
         //"radio"=>"multipleField"=>"MultipleFieldController"
         return BSDEM.fieldSupertypeMap[object.get("type")].toLowerCase() + "Field";
