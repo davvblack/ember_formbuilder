@@ -4,28 +4,46 @@
 
 BSDEM = Ember.Application.create();
 BSDEM.Router.map(function() {
-    this.resource('form', { path: '/' });
+    //this.resource('form', {path: '/'});
+    this.resource('fields', {path: '/'});
+    /*
+    this.resource('formbuilder', { path: '/' }, function () {
+        this.route('form');
+        this.route('fields');
+    });
+    */
 
 });
-/*
-BSDEM.IndexRoute = Ember.Route.extend({
-    model: function() {
-        return ['red', 'yellow', 'blue'];
+
+BSDEM.FormRoute = Ember.Route.extend({
+    model: function () {
+        return this.store.find('app-form',1);
+    },
+    renderTemplate: function() {
+        this.render({ outlet: 'form' });
     }
 });
-*/
+
+BSDEM.FieldsRoute = Ember.Route.extend({
+    model: function () {
+        return this.store.find('app-form-field');
+    },
+    renderTemplate: function() {
+        this.render({ outlet: 'fields' });
+    }
+});
+
 var attr = DS.attr;
 
 /* Models */
 
 // This won't be posted by the app.
 BSDEM.AppForm = DS.Model.extend({
-    id: attr,
-    app_form_fields: DS.hasMany('AppFormField')
+    app_form_fields: DS.hasMany('AppFormField', {async:true}),
+    name: attr("string")
 });
 
 BSDEM.AppFormField = DS.Model.extend({
-    id: attr("number"),
     app_form_id: DS.belongsTo('AppForm'),
     display_order: attr("number"),
     type: attr("string"),
@@ -34,7 +52,6 @@ BSDEM.AppFormField = DS.Model.extend({
 });
 
 BSDEM.AppFormFieldSettings = DS.Model.extend({
-    id: attr("number"),
     label: attr("string"),
     name: attr("string"),
     isRequired: attr("boolean"),
@@ -42,20 +59,75 @@ BSDEM.AppFormFieldSettings = DS.Model.extend({
     valueIfChecked: attr("string"),
     valueIfUnchecked: attr("string"),
     default: attr("string"),
-    options: attr, //["value", "value", "value"]
+    options: attr(), //["value", "value", "value"]
     isIncludedOnTaxReciept: attr("boolean")
 });
 
-/* Fixtures */
+/* Fixtures for debugging */
+
+BSDEM.ApplicationAdapter = DS.FixtureAdapter;
+
+BSDEM.AppFormFieldSettings.reopenClass({
+    FIXTURES:[
+        {
+            id:1,
+            label: "Hi",
+            name: "Whatever",
+            isRequired: false,
+            valueIfBlank: "thing",
+            valueIfChecked: "thing",
+            valueIfUnchecked: "thing",
+            default: "thing",
+            options: ["value", "value", "value"],
+            isIncludedOnTaxReciept: false
+        },
+        {
+            id:3,
+            label: "wat",
+            name: "wat2",
+            isRequired: false,
+            valueIfBlank: "thing",
+            valueIfChecked: "thing",
+            valueIfUnchecked: "thing",
+            default: "thing",
+            options: ["value", "value", "value"],
+            isIncludedOnTaxReciept: false
+        }
+    ]
+});
+
+BSDEM.AppFormField.reopenClass({
+    FIXTURES:[
+        {
+            id: 1,
+            app_form_id: 1,
+            display_order: 1,
+            type: "radio",
+            settings: 1,
+            is_new: true
+        },
+        {
+            id: 2,
+            app_form_id: 1,
+            display_order: 2,
+            type: "textarea",
+            settings: 3,
+            is_new: true
+        }
+    ]
+});
+
 
 BSDEM.AppForm.reopenClass({
     FIXTURES:[
         {
             id: 1,
+            name: "steve2",
             app_form_fields: [1]
         }
     ]
 });
+
 
 /* Controllers */
 
@@ -95,17 +167,19 @@ BSDEM.fieldTypeNames = {
     static: "Static HTML"
 }
 
-BSDEM.FormController = Ember.Controller.extend({
-
+BSDEM.FormbuilderFormController = Ember.Controller.extend({
+    thing: "whatever"
 });
 
-BSDEM.FieldsController = Ember.ArrayController.extend({
+BSDEM.FormbuilderFieldsController = Ember.ArrayController.extend({
     lookupItemController: function(object) {
-        return object.get("type");//multi_checkbox
+        //"radio"=>"multipleField"=>"MultipleFieldController"
+        return BSDEM.fieldSupertypeMap[object.get("type")].toLowerCase() + "Field";
     }
 });
 
 BSDEM.FieldController = Ember.Controller.extend({
+    showTypeLine: true,
     showHtmlEditor: false,
     fieldSupertype: Ember.computed('model.type', function(){
         return BSDEM.fieldSupertypeMap[this.get("model.type")];
@@ -123,8 +197,14 @@ BSDEM.FieldController = Ember.Controller.extend({
 
     }),
     typeOptionValues: Ember.computed('model.type', function(){
+        for (BSDEM.fieldSupertypeMap in BSDEM.fieldSupertypeMap) {
 
+        }
     })
+});
+
+BSDEM.TextFieldController = BSDEM.FieldController.extend({
+
 });
 
 BSDEM.MultipleFieldController = BSDEM.FieldController.extend({
@@ -136,8 +216,9 @@ BSDEM.CheckboxFieldController = BSDEM.FieldController.extend({
 });
 
 BSDEM.StaticFieldController = BSDEM.FieldController.extend({
-    htmlEditorHideable: true,
-    showHtmlEditor: false
+    htmlEditorHideable: false,
+
+    showHtmlEditor: true
 });
 
 BSDEM.OptionsController = Ember.ArrayController.extend({

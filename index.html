@@ -32,9 +32,9 @@
 
     <script type="text/x-handlebars" data-template-name="_radio-preview">
         <table>
-            {{#each fields as field}}
+            {{#each field in field}}
                 <tr><td>
-                    {{view input type}}
+                    radio opt
                 </td></tr>
             {{/each}}
         </table>
@@ -48,7 +48,7 @@
         <!-- empty placeholder -->
     </script>
 
-    <script type="text/x-handlebars" data-template-name="formbuilder-formfield">
+    <script type="text/x-handlebars" data-template-name="_formbuilder-formfield">
         <div class="bsd-formbuilder">
             <div class="head">
                 <div class="field-number">{{order}}</div>
@@ -84,23 +84,30 @@
                 {{#if showHtmlEditor}}
 //
                 {{/if}}
-                {{_partial previewComponent}}
+                {{partial previewComponent}}
             {{/if}}
         </div>
     </script>
 
-    <script type="text/x-handlebars" data-template-name="formbuilder-form">
-
-        {{#each fields}}
-
+    <script type="text/x-handlebars" data-template-name="fields">
+test
+        {{#each}}
+            this field is a {{model.type}}
+            {{partial "formbuilder-formfield"}}
         {{/each}}
     </script>
 
-
+    <script type="text/x-handlebars" data-template-name="form">
+        test
+        {{thing}} s {{model.name}} {{model.app_form_fields.0.type}}  {{model.name}}
+        {{#each field in model.app_form_fields}}
+            {{field.type}} – {{field.name}}
+        {{/each}}
+    </script>
 </head>
 <body>
 
-<script type="text/x-handlebars" id="index">
+<script type="xxx" id="index">
     <ul>
         {{#each item in model}}
             <li>{{item}}</li>
@@ -113,14 +120,11 @@
 <table><tr><td>
 
     <script type="text/x-handlebars">
-        <div>
-            hi
-        </div>
-
-        {{outlet}}
+        {{outlet form}}
+        {{outlet fields}}
     </script>
 
-</Td></tr></table>
+</td></tr></table>
 
 
 <script src="js/libs/jquery-1.10.2.js"></script>
@@ -128,7 +132,6 @@
 <script src="js/libs/ember-1.7.0.js"></script>
 <script src="js/libs/ember-data-1.0.0-beta.11.js"></script>
 <script src="js/app.js"></script>
-<!-- to activate the test runner, add the "?test" query string parameter -->
-<script src="tests/runner.js"></script>
+
 </body>
 </html>
