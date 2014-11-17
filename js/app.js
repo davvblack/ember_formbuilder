@@ -11,6 +11,9 @@ Object.values = function(obj) {
  */
 
 BSDEM = Ember.Application.create();
+
+BSDEM.ApplicationStore = DS.Store.extend();
+
 BSDEM.Router.map(function() {
     this.resource('form', {path: '/'});
 
@@ -52,13 +55,48 @@ BSDEM.AppFormFieldSettings = DS.Model.extend({
     valueIfChecked: attr("string"),
     valueIfUnchecked: attr("string"),
     default: attr("string"),
-    options: attr(), //["value", "value", "value"]
+    options: DS.hasMany('AppFormFieldFieldOption', {async:true}), //["value", "value", "value"]
     isIncludedOnTaxReciept: attr("boolean")
 });
+
+BSDEM.AppFormFieldFieldOption = DS.Model.extend({
+    name: attr("string"),
+    disabled: attr("boolean")
+});
+
 
 /* Fixtures for debugging */
 
 BSDEM.ApplicationAdapter = DS.FixtureAdapter;
+
+BSDEM.AppFormFieldFieldOption.reopenClass({
+    FIXTURES:[
+        {
+            id:1,
+            name:"Option A"
+        },
+        {
+            id:2,
+            name:"Option B"
+        },
+        {
+            id:3,
+            name:"Option C"
+        },
+        {
+            id:4,
+            name:"Option D"
+        },
+        {
+            id:5,
+            name:"Option E"
+        },
+        {
+            id:6,
+            name:"Option F"
+        }
+        ]
+});
 
 BSDEM.AppFormFieldSettings.reopenClass({
     FIXTURES:[
@@ -71,7 +109,7 @@ BSDEM.AppFormFieldSettings.reopenClass({
             valueIfChecked: "thing",
             valueIfUnchecked: "thing",
             default: "thing",
-            options: [{name:"value"}, {name:"value"}, {name:"value"}],
+            options: Ember.A([1,2,3]),
             isIncludedOnTaxReciept: false
         },
         {
@@ -83,7 +121,7 @@ BSDEM.AppFormFieldSettings.reopenClass({
             valueIfChecked: "thing",
             valueIfUnchecked: "thing",
             default: "thing",
-            options: [{name:"value"}, {name:"value"}, {name:"value"}],
+            options: Ember.A([4,5,6]),
             isIncludedOnTaxReciept: false
         }
     ]
@@ -120,6 +158,7 @@ BSDEM.AppForm.reopenClass({
         }
     ]
 });
+
 
 
 /* Controllers */
@@ -242,7 +281,9 @@ BSDEM.FieldController = Ember.Controller.extend({
         },
         addOption: function(){
             console.log(this.get('model.settings.options'));
-            this.get('model.settings.options').pushObject({name:""});
+            this.get('model.settings.options').pushObject(
+                this.store.createRecord('AppFormFieldFieldOption',{name:""})
+            );
         }
     }
 });

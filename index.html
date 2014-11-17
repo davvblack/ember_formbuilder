@@ -148,7 +148,12 @@ inside of form template
 
 </td></tr></table>
 
-
+<script>
+    // This prevents ember from extending prototypes of primitives like [] and function().
+    // Useful and pretty, but not worth the headaches it will cause with other js stuff we have.
+    window.ENV = {};
+    ENV.EXTEND_PROTOTYPES = false;
+</script>
 <script src="js/libs/jquery-1.10.2.js"></script>
 <script src="js/libs/handlebars-1.1.2.js"></script>
 <script src="js/libs/ember-1.7.0.js"></script>
