@@ -35,7 +35,7 @@ var attr = DS.attr;
 
 // This won't be posted by the app.
 BSDEM.AppForm = DS.Model.extend({
-    app_form_fields: DS.hasMany('AppFormField', {async:true}),
+    app_form_fields: DS.hasMany('AppFormField', {embedded:'always', async:true}),
     name: attr("string")
 });
 
@@ -55,7 +55,7 @@ BSDEM.AppFormFieldSettings = DS.Model.extend({
     valueIfChecked: attr("string"),
     valueIfUnchecked: attr("string"),
     default: attr("string"),
-    options: DS.hasMany('AppFormFieldFieldOption', {async:true}), //["value", "value", "value"]
+    options: DS.hasMany('AppFormFieldFieldOption', {embedded:'always', async:true}), //["value", "value", "value"]
     isIncludedOnTaxReciept: attr("boolean")
 });
 
@@ -211,7 +211,21 @@ BSDEM.fieldTypeNames = {
 
 BSDEM.FormController = Ember.Controller.extend({
     supertypeOptionLabels: Object.keys(BSDEM.fieldSupertypeNames),
-    supertypeOptionValues: Object.values(BSDEM.fieldSupertypeNames)
+    supertypeOptionValues: Object.values(BSDEM.fieldSupertypeNames),
+
+    actions: {
+        logEverything: function() {
+            console.log(this.store.all('app-form'));
+            console.log(this.store.all('app-form').get('content.0'));
+            console.log(this.store.all('app-form').get('content.0').toJSON());
+            console.log(this.store.all('app-form-field'));
+            console.log(this.store.all('app-form-field').get('content.0'));
+            console.log(this.store.all('app-form-field').get('content.0').toJSON());
+            console.log(this.store.all('app-form-field-settings'));
+            console.log(this.store.all('app-form-field-settings').get('content.0'));
+            console.log(this.store.all('app-form-field-settings').get('content.0').toJSON());
+        }
+    }
 });
 
 BSDEM.FieldsController = Ember.ArrayController.extend({
@@ -275,9 +289,12 @@ BSDEM.FieldController = Ember.Controller.extend({
         doneEdit: function(){
             this.set('editable', false);
             // Empties out empty options from the array.
-            this.set('model.settings.options', this.get('model.settings.options').filter(function(option){
-                return option.name;
-            }));
+            var store = this.store; //that this or this this?
+            this.get('model.settings.options').forEach(function(option){
+                if(!option.get("name")) {
+                    store.deleteRecord(option);
+                }
+            })
         },
         addOption: function(){
             console.log(this.get('model.settings.options'));
@@ -285,8 +302,19 @@ BSDEM.FieldController = Ember.Controller.extend({
                 this.store.createRecord('AppFormFieldFieldOption',{name:""})
             );
         }
-    }
+    },
+    isMultipleOptions: Ember.computed('supertype', function(){
+        return this.get('supertype') === "MULTIPLE";
+    }),
+    isSingleCheckbox: Ember.computed('supertype', function(){
+        return this.get('supertype') === "CHECKBOX";
+    }),
+    htmlEditorHideable: Ember.computed('model.type', function(){
+        return this.get('model.type') !== "static";
+    })
 });
+/*
+I can't get the controller lookup to work.
 
 BSDEM.TextFieldController = BSDEM.FieldController.extend({
 
@@ -304,6 +332,7 @@ BSDEM.StaticFieldController = BSDEM.FieldController.extend({
     htmlEditorHideable: false,
     showHtmlEditor: true
 });
+*/
 
 BSDEM.OptionsController = Ember.ArrayController.extend({
 
