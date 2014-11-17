@@ -35,7 +35,7 @@
             <tbody>
                 {{#each option in model.settings.options}}
                     <tr><td>
-                        <label><input type="radio" {{bind-attr name=model.display_order}} /> {{option}} </label>
+                        <label><input type="radio" {{bind-attr name=model.display_order}} /> {{option.name}} </label>
                     </td></tr>
                 {{/each}}
             </tbody>
@@ -68,7 +68,7 @@
                 {{#if showHtmlEditor}}
                     <div class="html-editor"><textarea></textarea></div>
                 {{/if}}
-                <div class="field-label">{{input placeholder="Enter field label"}}</div>
+                <div class="field-label">{{input placeholder="Enter field label" value=model.settings.name}}</div>
                 <div class="settings">
                     {{#if isSingleCheckbox}}
                         {{view 'formbuilder-field'}}
@@ -76,7 +76,7 @@
                     {{/if}}
                     {{#if isMultipleOptions}}
                         {{#each option in model.settings.options}}
-                            <p>{{input placeholder="Enter option name" value=option}}</p>
+                            <p>{{input placeholder="Enter option name" value=option.name}}</p>
                         {{/each}}
                         <button {{action 'addOption'}}>Add Option</button>
                     {{/if}}
@@ -88,6 +88,7 @@
                 {{#if showHtmlEditor}}
 //
                 {{/if}}
+                <h2>{{model.settings.name}}</h2>
                 {{partial previewComponent}}
             {{/if}}
         </div>
@@ -101,6 +102,15 @@
 
     <script type="text/x-handlebars" data-template-name="form">
 
+
+
+        {{render "fields" model.app_form_fields}}
+    </script>
+</head>
+<body>
+
+<script type="xxx" id="notes and shit">
+
 <!--
 inside of form template
         {{thing}} s {{model.name}} {{model.app_form_fields.0.type}}  {{model.name}}
@@ -110,17 +120,22 @@ inside of form template
 
   <p>      --- almost to fields</p>
 -->
-        {{render "fields" model.app_form_fields}}
-    </script>
-</head>
-<body>
-
-<script type="xxx" id="index">
     <ul>
         {{#each item in model}}
             <li>{{item}}</li>
         {{/each}}
     </ul>
+   {{view "select"
+               content=supertypeOptionLabels
+               }}
+
+
+    {{view "select"
+       content=programmers
+       optionValuePath="content.id"
+       optionLabelPath="content.firstName"
+       value=currentProgrammer.id}}
+
 </script>
 
 

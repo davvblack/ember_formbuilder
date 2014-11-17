@@ -1,3 +1,11 @@
+function countValues(from_object, counted_value) {
+    return Object.values(from_object).filter( function(val){ return val == counted_value; }).length;
+}
+
+Object.values = function(obj) {
+    return Object.keys(obj).map(function(key){return obj[key];})
+};
+
 /*
 
  */
@@ -63,7 +71,7 @@ BSDEM.AppFormFieldSettings.reopenClass({
             valueIfChecked: "thing",
             valueIfUnchecked: "thing",
             default: "thing",
-            options: ["value", "value", "value"],
+            options: [{name:"value"}, {name:"value"}, {name:"value"}],
             isIncludedOnTaxReciept: false
         },
         {
@@ -75,7 +83,7 @@ BSDEM.AppFormFieldSettings.reopenClass({
             valueIfChecked: "thing",
             valueIfUnchecked: "thing",
             default: "thing",
-            options: ["value", "value", "value"],
+            options: [{name:"value"}, {name:"value"}, {name:"value"}],
             isIncludedOnTaxReciept: false
         }
     ]
@@ -163,7 +171,8 @@ BSDEM.fieldTypeNames = {
 
 
 BSDEM.FormController = Ember.Controller.extend({
-
+    supertypeOptionLabels: Object.keys(BSDEM.fieldSupertypeNames),
+    supertypeOptionValues: Object.values(BSDEM.fieldSupertypeNames)
 });
 
 BSDEM.FieldsController = Ember.ArrayController.extend({
@@ -228,12 +237,12 @@ BSDEM.FieldController = Ember.Controller.extend({
             this.set('editable', false);
             // Empties out empty options from the array.
             this.set('model.settings.options', this.get('model.settings.options').filter(function(option){
-                return option;
+                return option.name;
             }));
         },
         addOption: function(){
             console.log(this.get('model.settings.options'));
-            this.get('model.settings.options').pushObject("");
+            this.get('model.settings.options').pushObject({name:""});
         }
     }
 });
@@ -267,10 +276,3 @@ BSDEM.OptionController = Ember.Controller.extend({
 
 //BSDEM.
 
-function countValues(from_object, counted_value) {
-    return Object.values(from_object).filter( function(val){ return val == counted_value; }).length;
-}
-
-Object.values = function(obj) {
-    return Object.keys(obj).map(function(key){return obj[key];})
-};
