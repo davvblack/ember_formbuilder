@@ -32,11 +32,13 @@
 
     <script type="text/x-handlebars" data-template-name="_radio-preview">
         <table>
-            {{#each field in field}}
-                <tr><td>
-                    radio opt
-                </td></tr>
-            {{/each}}
+            <tbody>
+                {{#each option in model.settings.options}}
+                    <tr><td>
+                        <label><input type="radio" {{bind-attr name=model.display_order}} /> {{option}} </label>
+                    </td></tr>
+                {{/each}}
+            </tbody>
         </table>
     </script>
 
@@ -48,19 +50,18 @@
         <!-- empty placeholder -->
     </script>
 
-    <script type="text/x-handlebars" data-template-name="_formbuilder-formfield">
+    <script type="text/x-handlebars" data-template-name="_formfield">
         <div class="bsd-formbuilder">
             <div class="head">
                 <div class="field-number">{{order}}</div>
-                Field Type
-                {{#unless editable}}<button class="edit" {{action edit}}>Edit</button>{{/unless}}
-                <div class="delete" {{action delete}}>Delete</div>
+                {{model.type}}
+                {{#unless editable}}<button class="edit" {{action 'edit'}}>Edit</button>{{/unless}}
+                <div class="delete" {{action 'delete'}}>Delete</div>
             </div>
             {{#if editable}}
                 {{#if showTypeLine}}
                     <div class="type-line">
                         {{#if hasTypeOptions}}
-
                         {{/if}}
                     </div>
                 {{/if}}
@@ -74,11 +75,14 @@
                         {{view 'formbuilder-field'}}
                     {{/if}}
                     {{#if isMultipleOptions}}
-                        {{#each}}
-                            {{view 'formbuilder-field'}}
+                        {{#each option in model.settings.options}}
+                            <p>{{input placeholder="Enter option name" value=option}}</p>
                         {{/each}}
                         <button {{action 'addOption'}}>Add Option</button>
                     {{/if}}
+                </div>
+                <div>
+                    <button {{action 'doneEdit'}}>Finished Editing</button>
                 </div>
             {{else}}
                 {{#if showHtmlEditor}}
@@ -90,19 +94,23 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="fields">
-test
         {{#each}}
-            this field is a {{model.type}}
-            {{partial "formbuilder-formfield"}}
+            {{partial "formfield"}}
         {{/each}}
     </script>
 
     <script type="text/x-handlebars" data-template-name="form">
-        test
+
+<!--
+inside of form template
         {{thing}} s {{model.name}} {{model.app_form_fields.0.type}}  {{model.name}}
         {{#each field in model.app_form_fields}}
             {{field.type}} – {{field.name}}
         {{/each}}
+
+  <p>      --- almost to fields</p>
+-->
+        {{render "fields" model.app_form_fields}}
     </script>
 </head>
 <body>
@@ -121,7 +129,6 @@ test
 
     <script type="text/x-handlebars">
         {{outlet form}}
-        {{outlet fields}}
     </script>
 
 </td></tr></table>

@@ -4,14 +4,8 @@
 
 BSDEM = Ember.Application.create();
 BSDEM.Router.map(function() {
-    //this.resource('form', {path: '/'});
-    this.resource('fields', {path: '/'});
-    /*
-    this.resource('formbuilder', { path: '/' }, function () {
-        this.route('form');
-        this.route('fields');
-    });
-    */
+    this.resource('form', {path: '/'});
+
 
 });
 
@@ -21,15 +15,6 @@ BSDEM.FormRoute = Ember.Route.extend({
     },
     renderTemplate: function() {
         this.render({ outlet: 'form' });
-    }
-});
-
-BSDEM.FieldsRoute = Ember.Route.extend({
-    model: function () {
-        return this.store.find('app-form-field');
-    },
-    renderTemplate: function() {
-        this.render({ outlet: 'fields' });
     }
 });
 
@@ -47,7 +32,7 @@ BSDEM.AppFormField = DS.Model.extend({
     app_form_id: DS.belongsTo('AppForm'),
     display_order: attr("number"),
     type: attr("string"),
-    settings: DS.belongsTo('AppFormFieldSettings', {embedded:'always'}),
+    settings: DS.belongsTo('AppFormFieldSettings', {embedded:'always', async:true}),
     is_new: attr("boolean", {defaultValue: true})
 });
 
@@ -123,13 +108,22 @@ BSDEM.AppForm.reopenClass({
         {
             id: 1,
             name: "steve2",
-            app_form_fields: [1]
+            app_form_fields: [1,2]
         }
     ]
 });
 
 
 /* Controllers */
+
+/* To represent the relationship between similar types of fields, this app uses "field type", which is the
+   data name that corresponds to the widget (ie, textarea, radio, checkbox, etc).
+
+   "field supertype" groups these types into logical categories that share an admin panel.  To make it obvious
+   which is which, supertypes are always ALL CAPS, and types are lowercase.  Only types are stored in the database.
+   For example, "radio" and "dropdown" are both supertype "MULTIPLE", and they both use the same BSDEM.MultipleFieldController,
+   which subclasses BSDEM.FieldController.  Users are allowed to change between types within the same supertype.
+ */
 
 BSDEM.fieldSupertypeMap = {
     text: "TEXT",
@@ -154,7 +148,7 @@ BSDEM.fieldSupertypeNames = {
     MULTIPLE: "Multiple Choice",
     CHECKBOX: "Single Checkbox",
     STATIC: "Static HTML"
-}
+};
 
 BSDEM.fieldTypeNames = {
     text: "Single Line",
@@ -165,42 +159,83 @@ BSDEM.fieldTypeNames = {
     radio: "Radio Button",
     multi_checkbox: "Multiple Checkbox",
     static: "Static HTML"
-}
+};
 
-BSDEM.FormbuilderFormController = Ember.Controller.extend({
-    thing: "whatever"
+
+BSDEM.FormController = Ember.Controller.extend({
+
 });
 
-BSDEM.FormbuilderFieldsController = Ember.ArrayController.extend({
-    lookupItemController: function(object) {
-        //"radio"=>"multipleField"=>"MultipleFieldController"
-        return BSDEM.fieldSupertypeMap[object.get("type")].toLowerCase() + "Field";
+BSDEM.FieldsController = Ember.ArrayController.extend({
+    lookupItemController: function(field) {
+        // "radio" => "multipleField" => "MultipleFieldController"
+        console.log(field.get("type"));
+        console.log(field.get("model"));
+        console.log(field);
+        window.myField = field;
+        if(field.get("type")) {
+            console.log(BSDEM.fieldSupertypeMap[field.get("type")].toLowerCase() + "Field");
+            return BSDEM.fieldSupertypeMap[field.get("type")].toLowerCase() + "Field";
+        }
+        // While the model is loading, need a fallback controller.  This will pick the abstract FieldController.
+        return "Field";
     }
 });
 
 BSDEM.FieldController = Ember.Controller.extend({
+    editable: true,
     showTypeLine: true,
     showHtmlEditor: false,
-    fieldSupertype: Ember.computed('model.type', function(){
-        return BSDEM.fieldSupertypeMap[this.get("model.type")];
-    }),
     htmlEditorHideable: true,
     isSingleCheckbox: false,
-    isMultipleOptions: false,
+    isMultipleOptions: true,
     previewComponent: Ember.computed('model.type', function(){
         return this.get('model.type') + "-preview";
     }),
     hasTypeOptions: Ember.computed('model.type', function(){
        return countValues(BSDEM.fieldSupertypeMap, this.get('model.type'))>1;
     }),
-    typeOptionLabels: Ember.computed('model.type', function(){
-
+    typeOptionLabels: Ember.computed('typeOptionValues', function(){
+        return this.get('typeOptionsValues').map(function(typeOptionValues){
+            return BSDEM.fieldTypeNames[typeOptionValues];
+        })
     }),
-    typeOptionValues: Ember.computed('model.type', function(){
-        for (BSDEM.fieldSupertypeMap in BSDEM.fieldSupertypeMap) {
-
+    typeOptionValues: Ember.computed('model.type', 'supertype', function(){
+        types = Em.Array();
+        for (fieldType in BSDEM.fieldSupertypeMap) {
+            if(BSDEM.fieldSupertypeMap.hasOwnProperty(fieldSupertype)) {
+                if(BSDEM.fieldSupertypeMap[fieldType] = this.get('supertype')) {
+                    types.push(fieldSupertype);
+                }
+            }
         }
-    })
+        return types;
+    }),
+    typeName: Ember.computed('model.type', function(){
+        return BSDEM.fieldTypeNames[this.get('model.type')];
+    }),
+    supertype: Ember.computed('model.type', function(){
+        return BSDEM.fieldSupertypeMap[this.get('model.type')]
+    }),
+    supertypeName: Ember.computed('supertype', function(){
+        return BSDEM.fieldSupertypeNames[this.get('supertype')];
+    }),
+    actions: {
+        edit: function(){
+            this.set('editable', true);
+        },
+        doneEdit: function(){
+            this.set('editable', false);
+            // Empties out empty options from the array.
+            this.set('model.settings.options', this.get('model.settings.options').filter(function(option){
+                return option;
+            }));
+        },
+        addOption: function(){
+            console.log(this.get('model.settings.options'));
+            this.get('model.settings.options').pushObject("");
+        }
+    }
 });
 
 BSDEM.TextFieldController = BSDEM.FieldController.extend({
@@ -217,7 +252,6 @@ BSDEM.CheckboxFieldController = BSDEM.FieldController.extend({
 
 BSDEM.StaticFieldController = BSDEM.FieldController.extend({
     htmlEditorHideable: false,
-
     showHtmlEditor: true
 });
 
