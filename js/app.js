@@ -2,8 +2,7 @@ function countValues(from_object, counted_value) {
     return Object.values(from_object).filter( function(val){ return val == counted_value; }).length;
 }
 
-function arrayFlip( trans )
-{
+function arrayFlip( trans ) {
     var key, tmp_ar = {};
     for ( key in trans )
     {
@@ -45,11 +44,8 @@ BSDEM.FormRoute = Ember.Route.extend({
 
 /* Models */
 var attr = DS.attr;
-//var attr = Em.k;
 var model = DS.Model;
-//var model = Ember.Object;
 
-// This won't be posted by the app.
 BSDEM.AppForm = model.extend({
     app_form_fields: DS.hasMany('AppFormField', {embedded:'always', async:true}),
     name: attr("string")
@@ -70,10 +66,7 @@ BSDEM.AppFormField = model.extend({
     options: DS.hasMany('AppFormFieldFieldOption', {embedded:'always', async:true}), //["value", "value", "value"]
     isIncludedOnTaxReciept: attr("boolean")
 });
-/*
-BSDEM.AppFormFieldSetting = model.extend({
-});
-*/
+
 BSDEM.AppFormFieldFieldOption = model.extend({
     name: attr("string"),
     disabled: attr("boolean")
@@ -84,24 +77,10 @@ BSDEM.AppFormSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
         app_form_fields: {embedded: 'always'}
     }
 });
-/*
-BSDEM.AppFormFieldSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
-    attrs: {
-        setting: {embedded: 'always'}
-    }
-});
 
-BSDEM.AppFormFieldSettingSerializer = DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+BSDEM.AppFormFieldSerializer = DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
         options: {embedded: 'always'}
-    }
-});*/
-
-BSDEM.ApplicationSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
-    attrs: {
-        app_form_fields: {embedded: 'always'}
-        //settings: {embedded: 'always'},
-        //options: {embedded: 'always'}
     }
 });
 
@@ -137,36 +116,7 @@ BSDEM.AppFormFieldFieldOption.reopenClass({
         }
         ]
 });
-/*
-BSDEM.AppFormFieldSetting.reopenClass({
-    FIXTURES:[
-        {
-            id:1,
-            label: "Hi",
-            name: "Whatever",
-            isRequired: false,
-            valueIfBlank: "thing",
-            valueIfChecked: "thing",
-            valueIfUnchecked: "thing",
-            default: "thing",
-            options: Ember.A([1,2,3]),
-            isIncludedOnTaxReciept: false
-        },
-        {
-            id:3,
-            label: "wat",
-            name: "wat2",
-            isRequired: false,
-            valueIfBlank: "thing",
-            valueIfChecked: "thing",
-            valueIfUnchecked: "thing",
-            default: "thing",
-            options: Ember.A([4,5,6]),
-            isIncludedOnTaxReciept: false
-        }
-    ]
-});
-*/
+
 BSDEM.AppFormField.reopenClass({
     FIXTURES:[
         {
@@ -295,24 +245,14 @@ BSDEM.FormController = Ember.Controller.extend({
 
     actions: {
         logEverything: function() {
-            console.log(this.store.all('app-form').get('content.0').serialize());
-
-            /*console.log(this.store.all('app-form'));
-            console.log(this.store.all('app-form').get('content.0'));
-            console.log(this.store.all('app-form-field'));
-            console.log(this.store.all('app-form-field').get('content.0'));
-            console.log(this.store.all('app-form-field').get('content.0').toJSON());
-            console.log(this.store.all('app-form-field-settings'));
-            console.log(this.store.all('app-form-field-settings').get('content.0'));
-            console.log(this.store.all('app-form-field-settings').get('content.0').toJSON());
-            */
+            console.log(JSON.stringify(this.store.all('app-form').get('content.0').serialize()));
         },
         addField: function () {
             console.log("adding field");
             this.get('model.app_form_fields').pushObject(
                 this.store.createRecord('AppFormField',
                     {
-                        type: arrayFlip(BSDEM.fieldSupertypeMap)[this.get('selectedSupertype')],
+                        type: arrayFlip(BSDEM.fieldSupertypeMap)[this.get('selectedSupertype')]
                     }
                 )
             );
@@ -417,6 +357,4 @@ BSDEM.OptionController = Ember.Controller.extend({
 });
 
 /* Views */
-
-//BSDEM.
 
