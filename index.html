@@ -19,7 +19,6 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="_checkbox-preview">
-
     </script>
 
     <script type="text/x-handlebars" data-template-name="_hidden-preview">
@@ -27,23 +26,29 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="_dropdown-preview">
-
+        {{view Ember.Select
+            content=model.settings.options
+            optionLabelPath="content.name"}}
     </script>
 
     <script type="text/x-handlebars" data-template-name="_radio-preview">
-        <table>
-            <tbody>
-                {{#each option in model.settings.options}}
-                    <tr><td>
-                        <label><input type="radio" {{bind-attr name=model.display_order}} /> {{option.name}} </label>
-                    </td></tr>
-                {{/each}}
-            </tbody>
-        </table>
+        <table><tbody>
+            {{#each option in model.settings.options}}
+                <tr><td>
+                    <label><input type="radio" {{bind-attr name=model.display_order}} /> {{option.name}} </label>
+                </td></tr>
+            {{/each}}
+        </tbody></table>
     </script>
 
     <script type="text/x-handlebars" data-template-name="_multi_checkbox-preview">
-
+        <table><tbody>
+            {{#each option in model.settings.options}}
+                <tr><td>
+                    <label><input type="checkbox" /> {{option.name}} </label>
+                </td></tr>
+            {{/each}}
+        </tbody></table>
     </script>
 
     <script type="text/x-handlebars" data-template-name="_static-preview">
@@ -54,14 +59,19 @@
         <div class="bsd-formbuilder">
             <div class="head">
                 <div class="field-number">{{order}}</div>
-                {{model.type}}
+                {{model.type}} – {{typeName}} – {{supertypeName}}
                 {{#unless editable}}<button class="edit" {{action 'edit'}}>Edit</button>{{/unless}}
-                <div class="delete" {{action 'delete'}}>Delete</div>
+                <button class="delete" {{action 'delete'}}>Delete</button>
             </div>
             {{#if editable}}
                 {{#if showTypeLine}}
                     <div class="type-line">
                         {{#if hasTypeOptions}}
+                            {{view Ember.Select
+                               content=typeOptions
+                               optionValuePath="content.value"
+                               optionLabelPath="content.label"
+                               value=model.type}}
                         {{/if}}
                     </div>
                 {{/if}}
@@ -87,6 +97,8 @@
             {{else}}
                 {{#if showHtmlEditor}}
 //
+
+
                 {{/if}}
                 <h2>{{model.settings.name}}</h2>
                 {{partial previewComponent}}
@@ -103,8 +115,16 @@
     <script type="text/x-handlebars" data-template-name="form">
         <button {{action 'logEverything'}}>Log Everything</button>
 
+        {{view Ember.Select
+           content=supertypeOptions
+           optionValuePath="content.value"
+           optionLabelPath="content.label"
+           value=selectedSupertype
+           prompt="Select a field type"}}
 
-        {{render "fields" model.app_form_fields}}
+        <button {{action "addField"}} {{bind-attr disabled=noSelectedSupertype}}>Add Field</button>
+
+        {{render "fields" fields}}
     </script>
 </head>
 <body>
@@ -125,10 +145,9 @@ inside of form template
             <li>{{item}}</li>
         {{/each}}
     </ul>
-   {{view "select"
+    {{view "select"
                content=supertypeOptionLabels
                }}
-
 
     {{view "select"
        content=programmers
