@@ -42,25 +42,24 @@ BSDEM.FormRoute = Ember.Route.extend({
     }
 });
 
-var attr = DS.attr;
 
 /* Models */
+var attr = DS.attr;
+//var attr = Em.k;
+var model = DS.Model;
+//var model = Ember.Object;
 
 // This won't be posted by the app.
-BSDEM.AppForm = DS.Model.extend({
+BSDEM.AppForm = model.extend({
     app_form_fields: DS.hasMany('AppFormField', {embedded:'always', async:true}),
     name: attr("string")
 });
 
-BSDEM.AppFormField = DS.Model.extend({
+BSDEM.AppFormField = model.extend({
     app_form_id: DS.belongsTo('AppForm'),
     display_order: attr("number"),
     type: attr("string"),
-    settings: DS.belongsTo('AppFormFieldSettings', {embedded:'always', async:true}),
-    is_new: attr("boolean", {defaultValue: true})
-});
-
-BSDEM.AppFormFieldSettings = DS.Model.extend({
+    is_new: attr("boolean", {defaultValue: true}),
     label: attr("string"),
     name: attr("string"),
     isRequired: attr("boolean"),
@@ -71,12 +70,40 @@ BSDEM.AppFormFieldSettings = DS.Model.extend({
     options: DS.hasMany('AppFormFieldFieldOption', {embedded:'always', async:true}), //["value", "value", "value"]
     isIncludedOnTaxReciept: attr("boolean")
 });
-
-BSDEM.AppFormFieldFieldOption = DS.Model.extend({
+/*
+BSDEM.AppFormFieldSetting = model.extend({
+});
+*/
+BSDEM.AppFormFieldFieldOption = model.extend({
     name: attr("string"),
     disabled: attr("boolean")
 });
 
+BSDEM.AppFormSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+        app_form_fields: {embedded: 'always'}
+    }
+});
+/*
+BSDEM.AppFormFieldSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+        setting: {embedded: 'always'}
+    }
+});
+
+BSDEM.AppFormFieldSettingSerializer = DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+        options: {embedded: 'always'}
+    }
+});*/
+
+BSDEM.ApplicationSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+        app_form_fields: {embedded: 'always'}
+        //settings: {embedded: 'always'},
+        //options: {embedded: 'always'}
+    }
+});
 
 /* Fixtures for debugging */
 
@@ -110,8 +137,8 @@ BSDEM.AppFormFieldFieldOption.reopenClass({
         }
         ]
 });
-
-BSDEM.AppFormFieldSettings.reopenClass({
+/*
+BSDEM.AppFormFieldSetting.reopenClass({
     FIXTURES:[
         {
             id:1,
@@ -139,7 +166,7 @@ BSDEM.AppFormFieldSettings.reopenClass({
         }
     ]
 });
-
+*/
 BSDEM.AppFormField.reopenClass({
     FIXTURES:[
         {
@@ -147,16 +174,37 @@ BSDEM.AppFormField.reopenClass({
             app_form_id: 1,
             display_order: 1,
             type: "radio",
-            settings: 1,
-            is_new: true
+            //setting: 1,
+            is_new: true,
+            id:1,
+            label: "Hi",
+            name: "Whatever",
+            isRequired: false,
+            valueIfBlank: "thing",
+            valueIfChecked: "thing",
+            valueIfUnchecked: "thing",
+            default: "thing",
+            options: Ember.A([1,2,3]),
+            isIncludedOnTaxReciept: false
+
         },
         {
             id: 2,
             app_form_id: 1,
             display_order: 2,
             type: "textarea",
-            settings: 3,
-            is_new: true
+            //setting: 3,
+            is_new: true,
+            label: "wat",
+            name: "wat2",
+            isRequired: false,
+            valueIfBlank: "thing",
+            valueIfChecked: "thing",
+            valueIfUnchecked: "thing",
+            default: "thing",
+            options: Ember.A([4,5,6]),
+            isIncludedOnTaxReciept: false
+
         }
     ]
 });
@@ -177,9 +225,8 @@ BSDEM.AppForm.reopenClass({
 /* Controllers */
 
 /* To represent the relationship between similar types of fields, this app uses "field type", which is the
-   data name that corresponds to the widget (ie, textarea, radio, checkbox, etc).
-
-   "field supertype" groups these types into logical categories that share an admin panel.  To make it obvious
+   data name that corresponds to the widget (ie, textarea, radio, checkbox, etc), and "field supertype"
+   which groups these types into logical categories that share an admin panel.  To make it obvious
    which is which, supertypes are always ALL CAPS, and types are lowercase.  Only types are stored in the database.
    For example, "radio" and "dropdown" are both supertype "MULTIPLE", and they both use the same BSDEM.MultipleFieldController,
    which subclasses BSDEM.FieldController.  Users are allowed to change between types within the same supertype.
@@ -248,17 +295,17 @@ BSDEM.FormController = Ember.Controller.extend({
 
     actions: {
         logEverything: function() {
+            console.log(this.store.all('app-form').get('content.0').serialize());
 
-            console.log(this.store.all('app-form'));
+            /*console.log(this.store.all('app-form'));
             console.log(this.store.all('app-form').get('content.0'));
-            console.log(this.store.all('app-form').get('content.0').toJSON());
             console.log(this.store.all('app-form-field'));
             console.log(this.store.all('app-form-field').get('content.0'));
             console.log(this.store.all('app-form-field').get('content.0').toJSON());
             console.log(this.store.all('app-form-field-settings'));
             console.log(this.store.all('app-form-field-settings').get('content.0'));
             console.log(this.store.all('app-form-field-settings').get('content.0').toJSON());
-
+            */
         },
         addField: function () {
             console.log("adding field");
@@ -266,7 +313,6 @@ BSDEM.FormController = Ember.Controller.extend({
                 this.store.createRecord('AppFormField',
                     {
                         type: arrayFlip(BSDEM.fieldSupertypeMap)[this.get('selectedSupertype')],
-                        settings: this.store.createRecord('AppFormFieldSettings')
                     }
                 )
             );
@@ -328,15 +374,15 @@ BSDEM.FieldController = Ember.Controller.extend({
             this.set('editable', false);
             // Empties out empty options from the array.
             var store = this.store; //that this or this this?
-            this.get('model.settings.options').forEach(function(option){
-                if(!option.get("name")) {
+            this.get('model.options').forEach(function(option){
+                if(!option || !option.get("name")) {
                     store.deleteRecord(option);
                 }
             })
         },
         addOption: function(){
-            console.log(this.get('model.settings.options'));
-            this.get('model.settings.options').pushObject(
+            console.log(this.get('model.options'));
+            this.get('model.options').pushObject(
                 this.store.createRecord('AppFormFieldFieldOption',{name:""})
             );
         }
