@@ -2,13 +2,9 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Ember Starter Kit</title>
+    <title>Formbuilder</title>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
-
-    <script type="text/x-handlebars" data-template-name="panel">
-
-    </script>
 
     <script type="text/x-handlebars" data-template-name="_text-preview">
         <input type="text">
@@ -45,7 +41,7 @@
         <table><tbody>
             {{#each option in model.options}}
                 <tr><td>
-                    <label><input type="checkbox" /> {{option.name}} </label>
+                    <label>{{input type="checkbox" checked=option.looksDefault}} {{option.name}} </label>
                 </td></tr>
             {{/each}}
         </tbody></table>
@@ -55,7 +51,28 @@
         <!-- empty placeholder -->
     </script>
 
-    <script type="text/x-handlebars" data-template-name="_formfield">
+    <script type="text/x-handlebars" data-template-name="form">
+        <button {{action 'logEverything'}}>Log Everything</button>
+
+        {{view Ember.Select
+           content=supertypeOptions
+           optionValuePath="content.value"
+           optionLabelPath="content.label"
+           value=selectedSupertype
+           prompt="Select a field type"}}
+
+        <button {{action "addField"}} {{bind-attr disabled=noSelectedSupertype}}>Add Field</button>
+
+        {{render "fields" fields}}
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="fields">
+        {{#each}}
+            {{partial "field"}}
+        {{/each}}
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="_field">
         <div class="bsd-formbuilder">
             <div class="head">
                 <div class="field-number">{{order}}</div>
@@ -85,9 +102,7 @@
                         {{view 'formbuilder-field'}}
                     {{/if}}
                     {{#if isMultipleOptions}}
-                        {{#each option in model.options}}
-                            <p>{{input placeholder="Enter option name" value=option.name}}</p>
-                        {{/each}}
+                        {{render "options" model.options}}
                         <button {{action 'addOption'}}>Add Option</button>
                     {{/if}}
                 </div>
@@ -104,26 +119,27 @@
         </div>
     </script>
 
-    <script type="text/x-handlebars" data-template-name="fields">
+    <script type="text/x-handlebars" data-template-name="options">
         {{#each}}
-            {{partial "formfield"}}
+            {{partial "option"}}
         {{/each}}
     </script>
 
-    <script type="text/x-handlebars" data-template-name="form">
-        <button {{action 'logEverything'}}>Log Everything</button>
-
-        {{view Ember.Select
-           content=supertypeOptions
-           optionValuePath="content.value"
-           optionLabelPath="content.label"
-           value=selectedSupertype
-           prompt="Select a field type"}}
-
-        <button {{action "addField"}} {{bind-attr disabled=noSelectedSupertype}}>Add Field</button>
-
-        {{render "fields" fields}}
+    <script type="text/x-handlebars" data-template-name="_option">
+        <p>{{input placeholder="Enter option name" value=model.name}}
+            <label>
+                {{input type="checkbox" checked=model.default}}
+                {{#if default}}
+                    Unset default.
+                {{else}}
+                    Set to default.
+                {{/if}}
+            </label>
+            {{test}}
+        </p>
     </script>
+
+
 </head>
 <body>
 

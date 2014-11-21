@@ -28,8 +28,6 @@ BSDEM.ApplicationStore = DS.Store.extend();
 
 BSDEM.Router.map(function() {
     this.resource('form', {path: '/'});
-
-
 });
 
 BSDEM.FormRoute = Ember.Route.extend({
@@ -69,7 +67,8 @@ BSDEM.AppFormField = model.extend({
 
 BSDEM.AppFormFieldFieldOption = model.extend({
     name: attr("string"),
-    disabled: attr("boolean")
+    default: attr("boolean"),
+    looksDefault: Ember.computed.oneWay("default")
 });
 
 BSDEM.AppFormSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
@@ -124,9 +123,7 @@ BSDEM.AppFormField.reopenClass({
             app_form_id: 1,
             display_order: 1,
             type: "radio",
-            //setting: 1,
             is_new: true,
-            id:1,
             label: "Hi",
             name: "Whatever",
             isRequired: false,
@@ -143,7 +140,6 @@ BSDEM.AppFormField.reopenClass({
             app_form_id: 1,
             display_order: 2,
             type: "textarea",
-            //setting: 3,
             is_new: true,
             label: "wat",
             name: "wat2",
@@ -152,7 +148,7 @@ BSDEM.AppFormField.reopenClass({
             valueIfChecked: "thing",
             valueIfUnchecked: "thing",
             default: "thing",
-            options: Ember.A([4,5,6]),
+            options: Ember.A(),
             isIncludedOnTaxReciept: false
 
         }
@@ -328,6 +324,7 @@ BSDEM.FieldController = Ember.Controller.extend({
         }
     }
 
+
 });
 
 BSDEM.TextFieldController = BSDEM.FieldController.extend({
@@ -335,7 +332,25 @@ BSDEM.TextFieldController = BSDEM.FieldController.extend({
 });
 
 BSDEM.MultipleFieldController = BSDEM.FieldController.extend({
-    isMultipleOptions: true
+    isMultipleOptions: true,
+    singleDefault: Ember.computed('model.type', function() {
+        return this.get("model.type") != "multi_checkbox";
+    }),
+    actions: {
+        // Uncheck everything else when a user sets a default to a non-multi-checbox option.
+        checked: function (checked_item) {
+            var that = this;
+            console.log(this.get('model.options'));
+            this.get('model.options').forEach(function (option) {
+
+                if (option && option.get("id") != checked_item && that.get("singleDefault")) {
+                    console.log("trying to unset", option);
+
+                    option.set("default", false);
+                }
+            })
+        }
+    }
 });
 
 BSDEM.CheckboxFieldController = BSDEM.FieldController.extend({
@@ -349,10 +364,33 @@ BSDEM.StaticFieldController = BSDEM.FieldController.extend({
 
 
 BSDEM.OptionsController = Ember.ArrayController.extend({
-
+    lookupItemController: function(option) {
+        return "option";
+    }
 });
 
 BSDEM.OptionController = Ember.Controller.extend({
+    test:"thing",
+    needs: ['options', 'field'],
+    options: Ember.computed.alias('controllers.options'),
+    field: Ember.computed.alias('controllers.field'),
+
+    defaultChanged: Ember.observer('model.default', function() {
+        if(this.get("model.default")) {
+            this.send('checked', this.get("model.id"));
+        }
+        console.log('clicked');
+        /*
+        console.log('clicked');
+        //this.model.set('looksDefault', this.model.get('default'));
+        if (this) {
+
+        }
+        console.log(this.get('options'));
+        console.log(this.get('field'));
+        this.send('checked', this.get("model.id"));
+        */
+    })
 
 });
 
