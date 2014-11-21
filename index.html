@@ -15,10 +15,11 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="_checkbox-preview">
+        <input type="checkbox"> {{model.name}}
     </script>
 
     <script type="text/x-handlebars" data-template-name="_hidden-preview">
-
+        <!-- empty placeholder -->
     </script>
 
     <script type="text/x-handlebars" data-template-name="_dropdown-preview">
@@ -74,48 +75,60 @@
 
     <script type="text/x-handlebars" data-template-name="_field">
         <div class="bsd-formbuilder">
-            <div class="head">
-                <div class="field-number">{{order}}</div>
-                {{model.type}} – {{typeName}} – {{supertypeName}}
-                {{#unless editable}}<button class="edit" {{action 'edit'}}>Edit</button>{{/unless}}
-                <button class="delete" {{action 'delete'}}>Delete</button>
-            </div>
-            {{#if editable}}
-                {{#if showTypeLine}}
-                    <div class="type-line">
-                        {{#if hasTypeOptions}}
+            {{#unless deleted}}
+                <div class="head">
+                    <div class="field-number">{{order}}</div>
+                    {{supertypeName}}
+                    {{#unless editable}}<button class="edit" {{action 'edit'}}>Edit</button>{{/unless}}
+                    <button class="delete" {{action 'delete'}}>Delete</button>
+                </div>
+                {{#if editable}}
+                    {{#if showTypeLine}}
+                        <div class="type-line">
+                            {{#if hasTypeOptions}}
+                                {{view Ember.Select
+                                   content=typeOptions
+                                   optionValuePath="content.value"
+                                   optionLabelPath="content.label"
+                                   value=model.type}}
+                            {{/if}}
+                        </div>
+                    {{/if}}
+                    <div class="field-label">{{input placeholder="Enter field label" value=model.name}}</div>
+                    <div class="">
+                        {{#if isSingleCheckbox}}
+                            <p>{{input placeholder="on" value=model.valueIfChecked}} Value if checked</p>
+                            <p>{{input placeholder="off" value=model.valueIfUnchecked}} Value if unchecked</p>
+                        {{/if}}
+                        {{#if isMultipleOptions}}
+                            {{render "options" model.options}}
+                            <button {{action 'addOption'}}>Add Option</button>
+                        {{/if}}
+                        {{#if showValidationOptions}}
                             {{view Ember.Select
-                               content=typeOptions
-                               optionValuePath="content.value"
-                               optionLabelPath="content.label"
-                               value=model.type}}
+                                   content=validationOptions
+                                   optionValuePath="content.value"
+                                   optionLabelPath="content.label"
+                                   value=model.validationRule}}
                         {{/if}}
                     </div>
+                    <div>
+                        {{#if htmlEditorHideable}}
+                            <button {{action 'showHideHtmlEditor'}}>Add Static HTML</button><br>
+                        {{/if}}
+                        {{#if showHtmlEditor}}
+                            {{textarea value=model.staticHtml}}<br>
+                        {{/if}}
+                        <button {{action 'doneEdit'}}>Finished Editing</button>
+                    </div>
+                {{else}}
+                    <h2>{{model.name}}</h2>
+                    {{model.staticHtml}}
+                    {{partial previewComponent}}
                 {{/if}}
-                {{#if showHtmlEditor}}
-                    <div class="html-editor"><textarea></textarea></div>
-                {{/if}}
-                <div class="field-label">{{input placeholder="Enter field label" value=model.name}}</div>
-                <div class=s">
-                    {{#if isSingleCheckbox}}
-                        {{view 'formbuilder-field'}}
-                        {{view 'formbuilder-field'}}
-                    {{/if}}
-                    {{#if isMultipleOptions}}
-                        {{render "options" model.options}}
-                        <button {{action 'addOption'}}>Add Option</button>
-                    {{/if}}
-                </div>
-                <div>
-                    <button {{action 'doneEdit'}}>Finished Editing</button>
-                </div>
             {{else}}
-                {{#if showHtmlEditor}}
-
-                {{/if}}
-                <h2>{{model.name}}</h2>
-                {{partial previewComponent}}
-            {{/if}}
+                This field is marked for deletion.  <button {{action 'undelete'}}>Undo.</button>
+            {{/unless}}
         </div>
     </script>
 
@@ -129,17 +142,27 @@
         <p>{{input placeholder="Enter option name" value=model.name}}
             <label>
                 {{input type="checkbox" checked=model.default}}
-                {{#if default}}
+                {{#if model.default}}
                     Unset default.
                 {{else}}
                     Set to default.
                 {{/if}}
             </label>
-            {{test}}
         </p>
     </script>
 
-
+    <style>
+        body{
+            background: grey;
+        }
+        .bsd-formbuilder {
+            background: white;
+            border-radius: 15px;
+            margin: 10px;
+            padding: 15px;
+            box-shadow: 10px 10px 5px #888888;
+        }
+    </style>
 </head>
 <body>
 

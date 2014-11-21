@@ -61,8 +61,10 @@ BSDEM.AppFormField = model.extend({
     valueIfChecked: attr("string"),
     valueIfUnchecked: attr("string"),
     default: attr("string"),
+    staticHtml: attr("string"),
     options: DS.hasMany('AppFormFieldFieldOption', {embedded:'always', async:true}), //["value", "value", "value"]
-    isIncludedOnTaxReciept: attr("boolean")
+    isIncludedOnTaxReciept: attr("boolean"),
+    validationRule: attr("string")
 });
 
 BSDEM.AppFormFieldFieldOption = model.extend({
@@ -226,7 +228,6 @@ BSDEM.FormController = Ember.Controller.extend({
                 options.push({label: BSDEM.fieldSupertypeNames[fieldSupertype], value: fieldSupertype});
             }
         }
-        console.log(options);
         return options;
     }),
 
@@ -241,10 +242,9 @@ BSDEM.FormController = Ember.Controller.extend({
 
     actions: {
         logEverything: function() {
-            console.log(JSON.stringify(this.store.all('app-form').get('content.0').serialize()));
+            1 && console.log(JSON.stringify(this.store.all('app-form').get('content.0').serialize()));
         },
         addField: function () {
-            console.log("adding field");
             this.get('model.app_form_fields').pushObject(
                 this.store.createRecord('AppFormField',
                     {
@@ -260,7 +260,6 @@ BSDEM.FieldsController = Ember.ArrayController.extend({
     lookupItemController: function(field) {
         // "radio" => "multipleField" => "MultipleFieldController"
         if(field.get("type")) {
-            console.log(BSDEM.fieldSupertypeMap[field.get("type")].toLowerCase() + "Field");
             return BSDEM.fieldSupertypeMap[field.get("type")].toLowerCase() + "Field";
         }
         // Illegal setup.  This field shouldn't be returned by the computed BSDEM.FormController.fields property.
@@ -270,11 +269,13 @@ BSDEM.FieldsController = Ember.ArrayController.extend({
 
 BSDEM.FieldController = Ember.Controller.extend({
     editable: true,
+    deleted: false,
     showTypeLine: true,
     showHtmlEditor: false,
     isMultipleOptions: false,
     isSingleCheckbox: false,
     htmlEditorHideable: true,
+    showValidationOptions: false,
 
     previewComponent: Ember.computed('model.type', function(){
         return this.get('model.type') + "-preview";
@@ -317,10 +318,18 @@ BSDEM.FieldController = Ember.Controller.extend({
             })
         },
         addOption: function(){
-            console.log(this.get('model.options'));
             this.get('model.options').pushObject(
                 this.store.createRecord('AppFormFieldFieldOption',{name:""})
             );
+        },
+        showHideHtmlEditor: function () {
+            this.set('showHtmlEditor', !this.get('showHtmlEditor'));
+        },
+        delete: function () {
+            this.set('deleted', true);
+        },
+        undelete: function () {
+            this.set('deleted', false);
         }
     }
 
@@ -328,7 +337,15 @@ BSDEM.FieldController = Ember.Controller.extend({
 });
 
 BSDEM.TextFieldController = BSDEM.FieldController.extend({
-
+    showValidationOptions: true,
+    validationOptions: Ember.A([
+        {label: "Anything", value: "isAllChars"},
+        {label: "Numbers Only (no decimals)", value: "isInteger"},
+        {label: "Numbers Only (decimals allowed)", value: "isDecimal"},
+        {label: "Letters Only", value: "isLetterOnly"},
+        {label: "Letters/Numbers Only (no spaces)", value: "isAlphaNumeric"},
+        {label: "Valid Email Address", value: "isEmail"}
+    ])
 });
 
 BSDEM.MultipleFieldController = BSDEM.FieldController.extend({
@@ -340,12 +357,8 @@ BSDEM.MultipleFieldController = BSDEM.FieldController.extend({
         // Uncheck everything else when a user sets a default to a non-multi-checbox option.
         checked: function (checked_item) {
             var that = this;
-            console.log(this.get('model.options'));
             this.get('model.options').forEach(function (option) {
-
                 if (option && option.get("id") != checked_item && that.get("singleDefault")) {
-                    console.log("trying to unset", option);
-
                     option.set("default", false);
                 }
             })
@@ -370,7 +383,6 @@ BSDEM.OptionsController = Ember.ArrayController.extend({
 });
 
 BSDEM.OptionController = Ember.Controller.extend({
-    test:"thing",
     needs: ['options', 'field'],
     options: Ember.computed.alias('controllers.options'),
     field: Ember.computed.alias('controllers.field'),
@@ -379,17 +391,6 @@ BSDEM.OptionController = Ember.Controller.extend({
         if(this.get("model.default")) {
             this.send('checked', this.get("model.id"));
         }
-        console.log('clicked');
-        /*
-        console.log('clicked');
-        //this.model.set('looksDefault', this.model.get('default'));
-        if (this) {
-
-        }
-        console.log(this.get('options'));
-        console.log(this.get('field'));
-        this.send('checked', this.get("model.id"));
-        */
     })
 
 });
