@@ -166,36 +166,6 @@
 </head>
 <body>
 
-<script type="xxx" id="notes and shit">
-
-<!--
-inside of form template
-        {{thing}} s {{model.name}} {{model.app_form_fields.0.type}}  {{model.name}}
-        {{#each field in model.app_form_fields}}
-            {{field.type}} – {{field.name}}
-        {{/each}}
-
-  <p>      --- almost to fields</p>
--->
-    <ul>
-        {{#each item in model}}
-            <li>{{item}}</li>
-        {{/each}}
-    </ul>
-    {{view "select"
-               content=supertypeOptionLabels
-               }}
-
-    {{view "select"
-       content=programmers
-       optionValuePath="content.id"
-       optionLabelPath="content.firstName"
-       value=currentProgrammer.id}}
-
-</script>
-
-
-
 <table><tr><td>
 
     <script type="text/x-handlebars">

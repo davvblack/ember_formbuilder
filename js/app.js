@@ -31,14 +31,16 @@ BSDEM.Router.map(function() {
 });
 
 BSDEM.FormRoute = Ember.Route.extend({
+    queryParams:["form_id"],
+    form_id: null,
     model: function () {
+        console.log(this.get("form_id"));
         return this.store.find('app-form',1);
     },
     renderTemplate: function() {
         this.render({ outlet: 'form' });
     }
 });
-
 
 /* Models */
 var attr = DS.attr;
@@ -221,6 +223,9 @@ BSDEM.FormController = Ember.Controller.extend({
 
     selectedSupertype: "",
 
+    queryParams:["form_id"],
+    form_id: null,
+
     supertypeOptions: Ember.computed(function(){
         var options = Ember.A();
         for (var fieldSupertype in BSDEM.fieldSupertypeNames) {
@@ -242,6 +247,7 @@ BSDEM.FormController = Ember.Controller.extend({
 
     actions: {
         logEverything: function() {
+            console.log(this.get("form_id"));
             1 && console.log(JSON.stringify(this.store.all('app-form').get('content.0').serialize()));
         },
         addField: function () {
