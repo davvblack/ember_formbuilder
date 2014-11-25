@@ -98,6 +98,10 @@ BSDEM.AppFormFieldSerializer = DS.ActiveModelSerializer.extend(DS.EmbeddedRecord
 
 //BSDEM.ApplicationAdapter = DS.FixtureAdapter;
 
+BSDEM.ApplicationAdapter = DS.RESTAdapter.extend({
+    namespace: 'Users/david/PhpstormProjects/ember_formbuilder/fixtures'//'ctl/donation'
+});
+
 BSDEM.AppFormFieldFieldOption.reopenClass({
     FIXTURES:[
         {

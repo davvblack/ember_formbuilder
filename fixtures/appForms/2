@@ -1,0 +1,77 @@
+{  
+   "appForm":{
+      "id":2,
+      "name":"steve2",
+      "app_form_fields":[
+         {  
+            "id":"2",
+            "display_order":2,
+            "type":"textarea",
+            "is_new":true,
+            "label":"wat",
+            "name":"wat2",
+            "is_required":false,
+            "value_if_blank":"thing",
+            "value_if_checked":"thing",
+            "value_if_unchecked":"thing",
+            "default":"thing",
+            "static_html":null,
+            "is_included_on_tax_reciept":false,
+            "validation_rule":"isAllChars",
+            "app_form_id_id":"2",
+            "options":[  
+
+            ]
+         },
+         {
+            "id":"3",
+            "display_order":null,
+            "type":"checkbox",
+            "is_new":true,
+            "label":null,
+            "name":"Testing",
+            "is_required":false,
+            "value_if_blank":null,
+            "value_if_checked":"checked",
+            "value_if_unchecked":"unchecked",
+            "default":null,
+            "static_html":null,
+            "is_included_on_tax_reciept":false,
+            "validation_rule":null,
+            "app_form_id_id":"2",
+            "options":[  
+
+            ]
+         },
+          {
+             "id":"1",
+             "display_order":1,
+             "type":"dropdown",
+             "is_new":true,
+             "label":"Hi",
+             "name":"Whatever",
+             "is_required":false,
+             "value_if_blank":"thing",
+             "value_if_checked":"thing",
+             "value_if_unchecked":"thing",
+             "default":"thing",
+             "static_html":null,
+             "is_included_on_tax_reciept":false,
+             "validation_rule":null,
+             "app_form_id_id":"2",
+             "options":[
+                {
+                   "id":"1",
+                   "name":"Option A",
+                   "default":true
+                },
+                {
+                   "id":"2",
+                   "name":"Option B",
+                   "default":false
+                }
+             ]
+          }
+      ]
+   }
+}
