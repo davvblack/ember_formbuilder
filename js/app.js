@@ -35,11 +35,14 @@ BSDEM.Router.reopen({
 });
 
 BSDEM.FormRoute = Ember.Route.extend({
-    queryParams:["formId"],
+    queryParams: {
+        // This would re-fetch the model if the #/?formId= would change.
+        // It won't at this point in the app, but it's nice to support.
+        formId: {refreshModel: true}
+    },
     formId: null,
-    model: function () {
-        console.log(this.get("formId"));
-        return this.store.find('app-form',1);
+    model: function (params) {
+        return this.store.find('app-form', params.formId);
     },
     renderTemplate: function() {
         this.render({ outlet: 'form' });
@@ -93,7 +96,7 @@ BSDEM.AppFormFieldSerializer = DS.ActiveModelSerializer.extend(DS.EmbeddedRecord
 
 /* Fixtures for debugging */
 
-BSDEM.ApplicationAdapter = DS.FixtureAdapter;
+//BSDEM.ApplicationAdapter = DS.FixtureAdapter;
 
 BSDEM.AppFormFieldFieldOption.reopenClass({
     FIXTURES:[
@@ -251,7 +254,6 @@ BSDEM.FormController = Ember.Controller.extend({
 
     actions: {
         logEverything: function() {
-            console.log(this.get("formId"));
             1 && console.log(JSON.stringify(this.store.all('app-form').get('content.0').serialize()));
         },
         addField: function () {
