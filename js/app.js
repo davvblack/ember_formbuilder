@@ -1,13 +1,15 @@
+/*
+ Helpers
+ */
+
 function countValues(from_object, counted_value) {
     return Object.values(from_object).filter( function(val){ return val == counted_value; }).length;
 }
 
-function arrayFlip( trans ) {
+function arrayFlip(trans) {
     var key, tmp_ar = {};
-    for ( key in trans )
-    {
-        if ( trans.hasOwnProperty( key ) )
-        {
+    for (key in trans){
+        if (trans.hasOwnProperty(key)){
             tmp_ar[trans[key]] = key;
         }
     }
@@ -19,7 +21,7 @@ Object.values = function(obj) {
 };
 
 /*
-
+   Ember Application
  */
 
 BSDEM = Ember.Application.create();
@@ -42,7 +44,8 @@ BSDEM.FormRoute = Ember.Route.extend({
     },
     formId: null,
     model: function (params) {
-        return this.store.find('app-form', params.formId);
+                                         //1 for the fixtures.  For real data will be params.formId
+        return this.store.find('app-form', 1 /*params.formId*/);
     },
     renderTemplate: function() {
         this.render({ outlet: 'form' });
@@ -96,7 +99,7 @@ BSDEM.AppFormFieldSerializer = DS.ActiveModelSerializer.extend(DS.EmbeddedRecord
 
 /* Fixtures for debugging */
 
-//BSDEM.ApplicationAdapter = DS.FixtureAdapter;
+BSDEM.ApplicationAdapter = DS.FixtureAdapter;
 
 BSDEM.AppFormFieldFieldOption.reopenClass({
     FIXTURES:[
@@ -366,7 +369,8 @@ BSDEM.MultipleFieldController = BSDEM.FieldController.extend({
         return this.get("model.type") != "multi_checkbox";
     }),
     actions: {
-        // Uncheck everything else when a user sets a default to a non-multi-checbox option.
+        // Uncheck everything else when a user sets a default to a non-multi-checkbox option.
+        // This is a handler for an event bubbled up by the OptionController.
         checked: function (checked_item) {
             var that = this;
             this.get('model.options').forEach(function (option) {
