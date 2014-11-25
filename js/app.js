@@ -30,11 +30,15 @@ BSDEM.Router.map(function() {
     this.resource('form', {path: '/'});
 });
 
+BSDEM.Router.reopen({
+    rootURL: '/test_scripts/formbuilder/'
+});
+
 BSDEM.FormRoute = Ember.Route.extend({
-    queryParams:["form_id"],
-    form_id: null,
+    queryParams:["formId"],
+    formId: null,
     model: function () {
-        console.log(this.get("form_id"));
+        console.log(this.get("formId"));
         return this.store.find('app-form',1);
     },
     renderTemplate: function() {
@@ -223,8 +227,8 @@ BSDEM.FormController = Ember.Controller.extend({
 
     selectedSupertype: "",
 
-    queryParams:["form_id"],
-    form_id: null,
+    queryParams:["formId"],
+    formId: null,
 
     supertypeOptions: Ember.computed(function(){
         var options = Ember.A();
@@ -247,7 +251,7 @@ BSDEM.FormController = Ember.Controller.extend({
 
     actions: {
         logEverything: function() {
-            console.log(this.get("form_id"));
+            console.log(this.get("formId"));
             1 && console.log(JSON.stringify(this.store.all('app-form').get('content.0').serialize()));
         },
         addField: function () {
